@@ -158,19 +158,20 @@ def extract_results(decision_tuples, decoded_lists):
     return extracted_results
 
 
-def main():
+def main(error_indexes, inf_vector=[1, 0, 1, 0, 1, 1, 0, 1]):
     global code_length, frozen_indices, path_limit, tree_depth
 
     print(f"Max paths: {path_limit}")
-    vector = create_input_vector([1, 0, 1, 0, 1, 1, 0, 1])
-    print(f"Vector of info bits: {vector}")
+    vector = create_input_vector(inf_vector)
+    print(f"Вектор бит после раскидывания: {vector}")
     bpsk = polar_encode(vector)
-    print(f"After bpsk: {bpsk}")
-    noisy_signal = awgn(bpsk, [7, 8])
-    print(f'After awgn: {noisy_signal}')
+    print(f"После bpsk: {bpsk}")
+    noisy_signal = awgn(bpsk, error_indexes)
+    print(f'После awgn: {noisy_signal}')
 
     decision_tuples, decoded_lists = polar_decode(noisy_signal)
 
+    print(f'Передавали биты: {''.join(map(str, inf_vector))}')
     results = extract_results(decision_tuples, decoded_lists)
     print(f"Метрика\tПолный код\t\t\tИнформационный код")
     for metric, full_code, info_code in results:
@@ -178,4 +179,16 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+    # f f f f f f i i f f i  i  i  i  i  i  i
+    error_pos_list = [[7, 8],
+                      [3, 6, 7],
+                      [3, 5, 10],
+                      [6, 7, 10],
+                      [3, 6, 9, 12],
+                      [6, 7, 10, 11]]
+    for i in range(len(error_pos_list)):
+        print(f'Позиции ошибок на данной итерации: {error_pos_list[i]}')
+        main(error_pos_list[i])
+        print()
+
