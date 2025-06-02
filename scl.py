@@ -29,14 +29,19 @@ def L(left_data, right_data):
 
 # R функция
 def R(left_data, right_data, bits):
-    result = [right_data[i] + (1 - 2 * bits[1][i]) * left_data[i] for i in range(len(right_data))]
-    return result
+    new_right_data = []
+    for i in range(len(right_data)):
+        if bits[1][i] == 0:
+            new_right_data.append(right_data[i] + left_data[i])
+        else:
+            new_right_data.append(right_data[i] - left_data[i])
+    return new_right_data
 
 
 # Функция для объединения узлов дерева (оно же поднятие наверх, вычисление b)
 def b_union(left_node, right_node, left_bits, right_bits):
     metric_sum = left_node[0] + right_node[0]
-    merged_bits = [(left_node[1][i] + right_node[1][i]) % 2 for i in range(len(left_node[1]))] + right_node[1]
+    merged_bits = [left_node[1][i] ^ right_node[1][i] for i in range(len(left_node[1]))] + right_node[1]
     combined_list = left_bits + right_bits
     return metric_sum, merged_bits, combined_list
 
